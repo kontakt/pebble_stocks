@@ -1,0 +1,24 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "chuffine@gmail.com",
+    "longName": "Stocks",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "Stocks",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "uuid": "53348754-b9d4-4471-90f2-63da05687970",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
