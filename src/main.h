@@ -1,9 +1,12 @@
 #pragma once
   
-typedef struct stock {
-   int price;
-   int size;
+typedef struct {
+  char symbol[5];      // 4 character symbol
+  char price[20];      // Price ($1234.56 +999.99%)
 } stock;
+
+stock* stocks_list[7];  // Permit up to seven stocks to be tracked
+int stocks_count = 0;
 
 //// MAIN SCREEN /////
 static Window *s_main_window;      // Main window handle
@@ -18,6 +21,11 @@ static int16_t s_menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t
 static void s_menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data);
 static void s_menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data);
 static void s_menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data);
+
+//// UTILITY ////
+// Communication
+static void inbox_received_callback(DictionaryIterator *iterator, void *context);
+static void inbox_dropped_callback(AppMessageResult reason, void *context);
 
 //// APP CORE ////
 static void handle_init(void);

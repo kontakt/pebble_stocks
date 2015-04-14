@@ -1,5 +1,9 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "index": 0,
+        "price": 2,
+        "symbol": 1
+    },
     "capabilities": [
         ""
     ],

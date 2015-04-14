@@ -32,7 +32,7 @@ static uint16_t s_menu_get_num_sections_callback(MenuLayer *menu_layer, void *da
 
 // Return the number of rows in the section
 static uint16_t s_menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
-  return 10;
+  return stocks_count;
 }
 
 // Confirm that the cells will be standard height
@@ -47,12 +47,60 @@ static void s_menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, 
 
 // Handle drawing for each layer
 static void s_menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-  
+  menu_cell_basic_draw(ctx, cell_layer,
+                       stocks_list[cell_index->row]->symbol,
+                       stocks_list[cell_index->row]->price,
+                       NULL);
 }
 
 // Handles the select button on a menu item
 static void s_menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
   
+}
+
+// Communications
+static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+  // Get the first pair
+  Tuple *t = dict_read_first(iterator);
+  // Temp value for recieved stock
+  stock* temp;
+  temp = malloc(sizeof(stock));
+  // Received index for stock
+  int index = -1;
+   
+  // Process all pairs present
+  while(t != NULL) {
+    // Determine the pair we have
+    switch (t->key) {
+      case 0:
+      index = (int)t->value->int8;
+      break;
+      case 1:
+      strncpy(temp->symbol, t->value->cstring, 4);
+      break;
+      case 2:
+      strncpy(temp->price, t->value->cstring, 20);
+      break;
+    }
+
+    // Get next pair, if any
+    t = dict_read_next(iterator);
+  }
+  // Check if the stock at index exists. If not, create it.
+  if(index != -1 && stocks_list[index] == NULL) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "New stock created");
+    stocks_list[index] = temp;  // Store pointer to struct in the list
+    stocks_count++;             // Increment number of stocks
+    menu_layer_reload_data(s_main_menu);  // Tell the main menu it has something new
+    APP_LOG(APP_LOG_LEVEL_INFO, stocks_list[index]->symbol);
+    APP_LOG(APP_LOG_LEVEL_INFO, stocks_list[index]->price);
+  }
+  else
+    free(temp);
+}
+
+static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
 }
 
 // Initialization
@@ -64,6 +112,12 @@ static void handle_init(void) {
     .unload = s_main_window_unload,
   });
   window_stack_push(s_main_window, true);
+  
+  // Register communication callbacks
+  app_message_register_inbox_received(inbox_received_callback);
+  app_message_register_inbox_dropped(inbox_dropped_callback);
+  // Open messenger
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
 
 // Deinitilization

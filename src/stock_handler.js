@@ -13,9 +13,10 @@ function getStock(symbol){
 	request.open("GET", requestURL, false);
   request.send(null);
   var response = JSON.parse(request.responseText);
-  console.log(response);
+  console.log(response.list.resources[0].resource.fields.symbol);
   Pebble.sendAppMessage({
-          "symbol":response.list.resources[0].resource.symbol}
-        );
-  console.log(request.responseText);
+    "index":0,
+    "symbol":response.list.resources[0].resource.fields.symbol,
+    "price":"$123.34 -0.34%"}
+    );
 }
