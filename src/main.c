@@ -57,7 +57,7 @@ static void s_menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, Men
 
 // Handles the select button on a menu item
 static void s_menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
-  send_phone_command(1);
+
 }
 
 // Communications
@@ -149,7 +149,6 @@ static void handle_init(void) {
   app_message_register_inbox_dropped(inbox_dropped_callback);
   // Open messenger
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-  send_phone_command(0);
 }
 
 // Deinitilization
