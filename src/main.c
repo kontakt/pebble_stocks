@@ -17,6 +17,8 @@ static void s_main_window_load(Window *window) {
     .draw_row = s_menu_draw_row_callback,
     .select_click = s_menu_select_callback,
   });
+  
+  layer_add_child(window_layer, menu_layer_get_layer(s_main_menu));
 }
 
 // Runs when the window is destroyed
@@ -55,35 +57,43 @@ static void s_menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, Men
 
 // Handles the select button on a menu item
 static void s_menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
-  
+  send_phone_command(1);
 }
 
 // Communications
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Packet recieved");
+  
   // Get the first pair
   Tuple *t = dict_read_first(iterator);
+  
   // Temp value for recieved stock
   stock* temp;
   temp = malloc(sizeof(stock));
+  
   // Received index for stock
   int index = -1;
    
-  // Process all pairs present
+  // Process all keypairs present
   while(t != NULL) {
-    // Determine the pair we have
+    // Determine the keypair
     switch (t->key) {
       case 0:
-      index = (int)t->value->int8;
-      break;
-      case 1:
-      strncpy(temp->symbol, t->value->cstring, 4);
+      JS_ready = true;        // Flag as ready
+      send_phone_command(1);  // Tell the app to execute command 1
       break;
       case 2:
+      index = (int)t->value->int8;
+      break;
+      case 3:
+      strncpy(temp->symbol, t->value->cstring, 4);
+      break;
+      case 4:
       strncpy(temp->price, t->value->cstring, 20);
       break;
     }
 
-    // Get next pair, if any
+    // Get next keypair, if any
     t = dict_read_next(iterator);
   }
   // Check if the stock at index exists. If not, create it.
@@ -95,12 +105,33 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     APP_LOG(APP_LOG_LEVEL_INFO, stocks_list[index]->symbol);
     APP_LOG(APP_LOG_LEVEL_INFO, stocks_list[index]->price);
   }
-  else
+  else {
     free(temp);
+  }
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+}
+
+static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+}
+
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+}
+
+void send_phone_command(int command){
+  // Prepare dictionary
+  DictionaryIterator *iterator;
+  app_message_outbox_begin(&iterator);
+  
+  // Write data
+  dict_write_int(iterator, 1, &command, sizeof(int), true /* signed */);
+  
+  // Send the data
+  app_message_outbox_send();
 }
 
 // Initialization
@@ -118,6 +149,7 @@ static void handle_init(void) {
   app_message_register_inbox_dropped(inbox_dropped_callback);
   // Open messenger
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  send_phone_command(0);
 }
 
 // Deinitilization

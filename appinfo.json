@@ -1,8 +1,10 @@
 {
     "appKeys": {
-        "index": 0,
-        "price": 2,
-        "symbol": 1
+        "command": 1,
+        "index": 2,
+        "price": 4,
+        "status": 0,
+        "symbol": 3
     },
     "capabilities": [
         ""
@@ -11,7 +13,14 @@
     "longName": "Stocks",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/ICON.png",
+                "menuIcon": true,
+                "name": "ICON",
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "3",
     "shortName": "Stocks",
