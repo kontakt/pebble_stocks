@@ -80,15 +80,15 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     switch (t->key) {
       case 0:
       JS_ready = true;        // Flag as ready
-      send_phone_command(1);  // Tell the app to execute command 1
-      break;
-      case 2:
-      index = (int)t->value->int8;
+      send_phone_command(1, 0);  // Tell the app to execute command 1, 0
       break;
       case 3:
-      strncpy(temp->symbol, t->value->cstring, 4);
+      index = (int)t->value->int8;
       break;
       case 4:
+      strncpy(temp->symbol, t->value->cstring, 4);
+      break;
+      case 5:
       strncpy(temp->price, t->value->cstring, 20);
       break;
     }
@@ -122,13 +122,14 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
-void send_phone_command(int command){
+void send_phone_command(int command, int detail){
   // Prepare dictionary
   DictionaryIterator *iterator;
   app_message_outbox_begin(&iterator);
   
   // Write data
   dict_write_int(iterator, 1, &command, sizeof(int), true /* signed */);
+  dict_write_int(iterator, 2, &detail, sizeof(int), true /* signed */);
   
   // Send the data
   app_message_outbox_send();

@@ -1,3 +1,5 @@
+var stocks = ["GOOG", "APPL", "GOOG", "APPL", "GOOG", "APPL", "GOOG", "APPL"];
+
 // Initialization event
 Pebble.addEventListener('ready',
   function(e) {
@@ -15,7 +17,7 @@ Pebble.addEventListener('appmessage',
         console.log("Test Passed");
         break;
       case 1:
-        getStock("GOOG", 0);
+        getStock(stocks[e.payload.detail], e.payload.detail);
         break;
     }
   }

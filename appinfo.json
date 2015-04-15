@@ -1,10 +1,11 @@
 {
     "appKeys": {
         "command": 1,
-        "index": 2,
-        "price": 4,
+        "detail": 2,
+        "index": 3,
+        "price": 5,
         "status": 0,
-        "symbol": 3
+        "symbol": 4
     },
     "capabilities": [
         ""
