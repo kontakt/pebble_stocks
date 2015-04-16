@@ -1,5 +1,7 @@
 #include <pebble.h>
 #include "main.h"
+  
+#define NUMBER_OF_STOCKS 4
 
 // Runs when the window first loads
 static void s_main_window_load(Window *window) {
@@ -79,18 +81,18 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Determine the keypair
     switch (t->key) {
       case 0:
-      JS_ready = true;        // Flag as ready
-      send_phone_command(1, 0);  // Tell the app to execute command 1, 0
-      break;
+        JS_ready = true;        // Flag as ready
+        send_phone_command(1, 0);  // Tell the app to execute command 1, 0
+        break;
       case 3:
-      index = (int)t->value->int8;
-      break;
+        index = (int)t->value->int8;
+        break;
       case 4:
-      strncpy(temp->symbol, t->value->cstring, 4);
-      break;
+        strncpy(temp->symbol, t->value->cstring, 4);
+        break;
       case 5:
-      strncpy(temp->price, t->value->cstring, 20);
-      break;
+        strncpy(temp->price, t->value->cstring, 20);
+        break;
     }
 
     // Get next keypair, if any
@@ -122,7 +124,8 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
-void send_phone_command(int command, int detail){
+static void send_phone_command(int command, int detail){
+  int retries = 0;
   // Prepare dictionary
   DictionaryIterator *iterator;
   app_message_outbox_begin(&iterator);
@@ -132,7 +135,20 @@ void send_phone_command(int command, int detail){
   dict_write_int(iterator, 2, &detail, sizeof(int), true /* signed */);
   
   // Send the data
-  app_message_outbox_send();
+  if(app_message_outbox_send() != APP_MSG_OK && retries < 3){
+    APP_LOG(APP_LOG_LEVEL_WARNING, "Message unsuccessful, retrying");
+    retries++;
+    send_phone_command(command, detail);
+  } 
+  else if(app_message_outbox_send() != APP_MSG_OK && retries >= 3){
+    APP_LOG(APP_LOG_LEVEL_WARNING, "Message FAILED");
+  }
+}
+
+static void data_init(){
+  for(int i=0; i < NUMBER_OF_STOCKS; i++){
+    send_phone_command(2,i);
+  }
 }
 
 // Initialization
@@ -150,6 +166,8 @@ static void handle_init(void) {
   app_message_register_inbox_dropped(inbox_dropped_callback);
   // Open messenger
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  
+  data_init();
 }
 
 // Deinitilization

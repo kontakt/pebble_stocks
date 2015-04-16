@@ -26,6 +26,8 @@ static void s_menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, Men
 static void s_menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data);
 
 //// UTILITY ////
+// Data handling
+static void data_init();
 // Communication
 static void inbox_received_callback(DictionaryIterator *iterator, void *context);
 static void inbox_dropped_callback(AppMessageResult reason, void *context);
