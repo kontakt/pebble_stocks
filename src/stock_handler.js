@@ -50,14 +50,14 @@ function yahooAPIcall(){
       break;
     URLcenter += ',';
   }
-  
+
   // Request from yahoo API
   var requestURL = URLprefix + URLcenter + URLsuffix;
   console.log(requestURL);
 	var request = new XMLHttpRequest();
 	request.open("GET", requestURL, false);
   request.send();
-  
+
   // Parse the response
   var response = JSON.parse(request.responseText);
   return response;
