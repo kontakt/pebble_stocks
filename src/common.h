@@ -5,7 +5,7 @@ typedef struct {
   char price[20];      // Price ($1234.56 +999.99%)
 } stock;
 
-stock* stocks_list[7];  // Permit up to seven stocks to be tracked
-int stocks_count = 0;
+extern stock* stocks_list[7];  // Permit up to seven stocks to be tracked
+extern int stocks_count;
 
 #define NUMBER_OF_STOCKS 4

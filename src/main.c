@@ -1,16 +1,11 @@
 #include <pebble.h>
 #include "common.h"
 #include "main_screen.h"
+#include "comms.h"
 #include "main.h"
 
-static void data_init(){
-  for(int i=0; i < NUMBER_OF_STOCKS; i++){
-    send_phone_command(2,i);
-  }
-}
-
 // Initialization
-static void handle_init(void) {
+void handle_init(void) {
   // Create main window
   s_main_window = window_create();
   window_set_window_handlers(s_main_window, (WindowHandlers) {
@@ -24,12 +19,10 @@ static void handle_init(void) {
   app_message_register_inbox_dropped(inbox_dropped_callback);
   // Open messenger
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-
-  data_init();
 }
 
 // Deinitilization
-static void handle_deinit(void) {
+void handle_deinit(void) {
   // Destroy main window
   window_destroy(s_main_window);
 }

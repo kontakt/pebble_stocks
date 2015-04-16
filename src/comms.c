@@ -1,9 +1,12 @@
 #include <pebble.h>
 #include "common.h"
+#include "main_screen.h"
 #include "comms.h"
 
+bool JS_ready = false;
+
 // Communications
-static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Packet recieved");
 
   // Get the first pair
@@ -44,27 +47,25 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     stocks_list[index] = temp;  // Store pointer to struct in the list
     stocks_count++;             // Increment number of stocks
     menu_layer_reload_data(s_main_menu);  // Tell the main menu it has something new
-    APP_LOG(APP_LOG_LEVEL_INFO, stocks_list[index]->symbol);
-    APP_LOG(APP_LOG_LEVEL_INFO, stocks_list[index]->price);
   }
   else {
     free(temp);
   }
 }
 
-static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+void inbox_dropped_callback(AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
 }
 
-static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
 }
 
-static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
-static void send_phone_command(int command, int detail){
+void send_phone_command(int command, int detail){
   int retries = 0;
   // Prepare dictionary
   DictionaryIterator *iterator;
