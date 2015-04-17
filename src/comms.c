@@ -18,14 +18,18 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   // Received index for stock
   int index = -1;
-
+  
   // Process all keypairs present
   while(t != NULL) {
     // Determine the keypair
-    switch (t->key) {
+    switch ((int)t->key) {
       case 0:
-        JS_ready = true;        // Flag as ready
-        send_phone_command(1, 0);  // Tell the app to execute command 1, 0
+        JS_ready = true;            // Flag as ready
+        send_phone_command(2, 0);   // Tell the app to execute command 1, 0
+        break;
+      case 1:
+        break;
+      case 2:
         break;
       case 3:
         index = (int)t->value->int8;
@@ -36,11 +40,15 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
       case 5:
         strncpy(temp->price, t->value->cstring, 20);
         break;
+      default:
+        APP_LOG(APP_LOG_LEVEL_WARNING, "Case not handled");
+        break;
     }
 
     // Get next keypair, if any
     t = dict_read_next(iterator);
   }
+  
   // Check if the stock at index exists. If not, create it.
   if(index != -1 && stocks_list[index] == NULL) {
     APP_LOG(APP_LOG_LEVEL_INFO, "New stock created");
@@ -65,8 +73,8 @@ void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
+int retries;
 void send_phone_command(int command, int detail){
-  int retries = 0;
   // Prepare dictionary
   DictionaryIterator *iterator;
   app_message_outbox_begin(&iterator);
@@ -84,4 +92,5 @@ void send_phone_command(int command, int detail){
   else if(app_message_outbox_send() != APP_MSG_OK && retries >= 3){
     APP_LOG(APP_LOG_LEVEL_WARNING, "Message FAILED");
   }
+  retries = 0;
 }

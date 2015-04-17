@@ -65,8 +65,8 @@ function yahooAPIcall(){
 
 // Refreshes all stocks
 function refreshAll(){
+  var stock_data = yahooAPIcall();
   for(var i=0; i<stocks.length; i++){
-    var stock_data = yahooAPIcall(stocks[i]);
     data[i] = new stock(i,
                         stocks[i],
                         stock_data.query.results.quote[i].Ask,
